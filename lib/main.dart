@@ -11,7 +11,7 @@ children:
   - text: "This is our page"
     font-size: 1.4
     font-weight: bold
-    color: blue
+    color: "#702040"
   - type: column
     align: top
     xalign: right
@@ -24,11 +24,14 @@ children:
     children:
       - text: "First Cell  "
       - text: "Last Cell"
-  - type: image
-    src: "https://cdn.pixabay.com/photo/2016/03/09/15/27/cat-1246659_960_720.jpg"
-    width: 240
-    height: 320
-    align: right
+  - type: padding
+    padding: 6
+    child:
+    - type: image
+      src: "https://cdn.pixabay.com/photo/2016/03/09/15/27/cat-1246659_960_720.jpg"
+      width: 240
+      height: 320
+      align: right
   - text: "What a lovely image above!"
     type: text # you don't need to specify a type for text, but is not illegal :-)
     class: comment
@@ -56,7 +59,7 @@ children:
 List<Widget> buildWidgets(YamlList nodes) {
   List<Widget> w = List();
 
-  nodes.forEach((child) {
+  nodes.forEach((node) {
     var type = "text"; // this is the default if no type specified
     var textVal = "";
     var color = 0xff101010;
@@ -66,50 +69,43 @@ List<Widget> buildWidgets(YamlList nodes) {
     var src = "#";
     String xAlign;
     List<Widget> children;
-    Widget gchild;
+    Widget child;
 
-    child.forEach((k, v) {
+    node.forEach((k, v) {
       if (k == 'children') {
-        // Recursively build children
         children = buildWidgets(v);
-      } else {
-        print('  $k -> $v');
-        if (k == "text") { // TODO - use a switch
+      } else if (k == "child") {
+        child = buildWidgets(v)
+            .first; // todo - verify .first is safe on null or empty
+      } else if (k == "text") {
           textVal = v;
-        } else if (k == 'type') {
-          type = v;
-        } else if (k == "color") {
-          color = 0xff2440a0; // TODO: lookup v in a map
-        } else if (k == 'font-weight') {
-          fontWeight = FontWeight.bold; // TODO: lookup v in a map
-        } else if (k == 'src') {
-          src = v;
-        } else if (k == 'padding') {
-          padding = v;
-        } else if (k == 'width') {
-          width = v;
-        } else if (k == 'height') {
-          height = v;
-        }
+      } else if (k == 'type') {
+        type = v;
+      } else if (k == "color") {
+        color = intFromHexString(v);
+      } else if (k == 'font-weight') {
+        fontWeight = FontWeight.bold; // TODO: lookup v in a map
+      } else if (k == 'src') {
+        src = v;
+      } else if (k == 'padding') {
+        padding = v;
+      } else if (k == 'width') {
+        width = v;
+      } else if (k == 'height') {
+        height = v;
       }
     });
 
     // Build
 
     if (type == "text") {
-      w.add(Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: RichText(text:
-        TextSpan(text: textVal,
-            style: TextStyle(color: Color(color),
-              fontWeight: fontWeight,
-            ))),
-      ));
+      w.add(RichText(text: TextSpan(text: textVal,
+          style: TextStyle(color: Color(color), fontWeight: fontWeight))));
     } else if (type == "image") {
+      w.add(Image.network(src, width: null, height: height.ceilToDouble()));
+    } else if (type == 'padding') {
       w.add(Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Image.network(src, width: null, height: height.ceilToDouble()),
-      ));
+          padding: EdgeInsets.all(padding.ceilToDouble()), child: child));
     } else if (type == 'column') {
       w.add(Column(children: children));
     } else if (type == 'row') {
@@ -118,6 +114,12 @@ List<Widget> buildWidgets(YamlList nodes) {
   });
 
   return w;
+}
+
+int intFromHexString(String hex) {
+  hex = hex.replaceFirst('#', '');
+  hex = hex.length == 6 ? 'ff' + hex : hex;
+  return int.parse(hex, radix: 16);
 }
 
 // SCRAPS
