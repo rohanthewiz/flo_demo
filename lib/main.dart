@@ -3,21 +3,22 @@ import 'package:yaml/yaml.dart';
 
 void main() {
   YamlMap doc = loadYaml("""
-type: container # There can be only one root node
-child-align: center
+#type: container # There can be only one root node
 background-color: "#ffeef0"
-padding: 8
+padding: 10
 children:
-  - text: "This is our page"
-    font-size: 1.4
-    font-weight: bold
+  - text: "What's up doc?"
+    font-size: 20
+    font-weight: w900
     color: "#702040"
   - type: column
     align: top
     xalign: right
     children:
       - text: "First Row"
+        font-style: italic
       - text: "Second Row"
+        font-style: bold
   - type: row
     align: left
     xalign: start # top
@@ -32,21 +33,23 @@ children:
       width: 240
       height: 320
       align: right
-  - text: "What a lovely image above!"
+  - text: "What a lovely picture!"
     type: text # you don't need to specify a type for text, but is not illegal :-)
     class: comment
 """);
 
   runApp(
       MaterialApp(
-          title: 'CCSWM',
-          theme: ThemeData(primarySwatch: Colors.cyan),
+          title: 'Flo Demo',
+          theme: ThemeData(primarySwatch: Colors.brown),
           home: Scaffold(
               appBar: AppBar(
                 title: Text('Flo Demo'),
               ),
               body: Container(
-                  padding: EdgeInsets.all(6),
+                  padding: EdgeInsets.all(doc['padding']?.ceilToDouble() ?? 6),
+                  color: Color(
+                      intFromHexString(doc['background-color'].toString())),
                   child: Column(
                       children: buildWidgets(doc['children'])
                   )
@@ -60,14 +63,18 @@ List<Widget> buildWidgets(YamlList nodes) {
   List<Widget> w = List();
 
   nodes.forEach((node) {
-    var type = "text"; // this is the default if no type specified
+    var type = "text"; // this is the default type
     var textVal = "";
     var color = 0xff101010;
+    var bgColor = 0xffffffff;
     var fontWeight = FontWeight.normal;
+    var fontStyle = FontStyle.normal;
+    var fontSize = 14;
     int padding;
     int width, height;
     var src = "#";
-    String xAlign;
+    var align = MainAxisAlignment.start;
+    var xAlign = CrossAxisAlignment.center;
     List<Widget> children;
     Widget child;
 
@@ -75,16 +82,30 @@ List<Widget> buildWidgets(YamlList nodes) {
       if (k == 'children') {
         children = buildWidgets(v);
       } else if (k == "child") {
-        child = buildWidgets(v)
-            .first; // todo - verify .first is safe on null or empty
+        child =
+            buildWidgets(v).first; // todo - verify .first is safe null/empty
       } else if (k == "text") {
           textVal = v;
       } else if (k == 'type') {
         type = v;
       } else if (k == "color") {
         color = intFromHexString(v);
+      } else if (k == "background-color") {
+        bgColor = intFromHexString(v);
       } else if (k == 'font-weight') {
-        fontWeight = FontWeight.bold; // TODO: lookup v in a map
+        var fw = enumValueFromString(v, FontWeight.values);
+        if (fw != null) {
+          fontWeight = fw;
+        }
+      } else if (k == 'font-style') {
+        var fs = enumValueFromString(v, FontStyle.values);
+        if (fs != null) {
+          fontStyle = fs;
+        }
+      } else if (k == 'font-size') {
+        if (v > 0) {
+          fontSize = v;
+        }
       } else if (k == 'src') {
         src = v;
       } else if (k == 'padding') {
@@ -93,6 +114,16 @@ List<Widget> buildWidgets(YamlList nodes) {
         width = v;
       } else if (k == 'height') {
         height = v;
+      } else if (k == 'align') {
+        var a = enumValueFromString(v, MainAxisAlignment.values);
+        if (a != null) {
+          align = a;
+        }
+      } else if (k == 'xalign') {
+        var x = enumValueFromString(v, CrossAxisAlignment.values);
+        if (x != null) {
+          xAlign = x;
+        }
       }
     });
 
@@ -100,16 +131,22 @@ List<Widget> buildWidgets(YamlList nodes) {
 
     if (type == "text") {
       w.add(RichText(text: TextSpan(text: textVal,
-          style: TextStyle(color: Color(color), fontWeight: fontWeight))));
+          style: TextStyle(color: Color(color), fontWeight: fontWeight,
+              fontStyle: fontStyle, fontSize: fontSize.ceilToDouble()))));
     } else if (type == "image") {
-      w.add(Image.network(src, width: null, height: height.ceilToDouble()));
+      w.add(Image.network(
+          src, width: width.ceilToDouble(), height: height.ceilToDouble()));
     } else if (type == 'padding') {
       w.add(Padding(
           padding: EdgeInsets.all(padding.ceilToDouble()), child: child));
     } else if (type == 'column') {
-      w.add(Column(children: children));
+      w.add(Column(children: children,
+          mainAxisAlignment: align,
+          crossAxisAlignment: xAlign));
     } else if (type == 'row') {
-      w.add(Row(children: children));
+      w.add(Row(children: children,
+          mainAxisAlignment: align,
+          crossAxisAlignment: xAlign));
     }
   });
 
@@ -121,6 +158,15 @@ int intFromHexString(String hex) {
   hex = hex.length == 6 ? 'ff' + hex : hex;
   return int.parse(hex, radix: 16);
 }
+
+String enumValueToString(Object o) =>
+    o
+        .toString()
+        .split('.')
+        .last;
+
+T enumValueFromString<T>(String key, List<T> values) =>
+    values.firstWhere((v) => key == enumValueToString(v), orElse: () => null);
 
 // SCRAPS
 
