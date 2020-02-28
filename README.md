@@ -1,10 +1,10 @@
 # flo_demo
 
-Flo is a document language for Flutter. It will offer most of the capabilities of Flutter including layout, color, and other styling
-This is currently POC. Things *will* change.
+Flo is a document language for Flutter. It will offer most of the capabilities of Flutter including layout, color, and other styling. This is currently POC. Things *will* change.
+
 ![Flo_demo](pics/flo_demo.png?raw=true "Flo Demo Screenshot")
 
-Produced by this bit of yaml:
+Produced by this bit of YAML:
 
 ```
 #type: container # There can be only one root node
@@ -41,7 +41,6 @@ children:
     type: text # you don't need to specify a type for text, but is not illegal :-)
     class: comment
 ```
-
 
 ## Getting Started
 
