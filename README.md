@@ -6,7 +6,7 @@ Flo is a document language for Flutter. It will offer most of the capabilities o
 
 Produced by this bit of YAML:
 
-```
+```yaml
 #type: container # There can be only one root node
 background-color: "#ffeef0"
 padding: 10
