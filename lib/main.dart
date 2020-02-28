@@ -18,13 +18,15 @@ children:
       - text: "First Row"
         font-style: italic
       - text: "Second Row"
-        font-style: bold
+        font-weight: w700
   - type: row
     align: left
     xalign: start # top
     children:
-      - text: "First Cell  "
+      - text: "First Cell"
+        color: '#20ff10'
       - text: "Last Cell"
+        color: '#2010ff'
   - type: padding
     padding: 6
     child:
