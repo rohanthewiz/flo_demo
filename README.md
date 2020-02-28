@@ -1,6 +1,9 @@
 # flo_demo
 
-A new Flutter project.
+Flo is a document language for Flutter. It will offer most of the capabilities of Flutter including layout, color, and other styling
+![Flo_demo](pics/flo_demo.png?raw=true "Flo Demo Screenshot")
+
+This is currently POC, but is quite promising.
 
 ## Getting Started
 
