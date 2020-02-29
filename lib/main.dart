@@ -7,10 +7,10 @@ void main() {
 background-color: "#ffeef0"
 padding: 10
 children:
-  - text: "What's up doc?"
+  - text: "What's up Doc?"
     font-size: 20
     font-weight: w900
-    color: "#702040"
+    color: "#501010"
   - type: column
     align: top
     xalign: right
@@ -20,24 +20,48 @@ children:
       - text: "Second Row"
         font-weight: w700
   - type: row
-    align: left
-    xalign: start # top
+    align: spaceEvenly
+    xalign: end
     children:
       - text: "First Cell"
         color: '#20ff10'
-      - text: "Last Cell"
+      - text: " Last Cell"
         color: '#2010ff'
+      - text: " I am here "
+      - type: container
+        color: '#cca820'
+        padding: 6
+        child:
+          - type: column
+            align: end
+            xalign: end
+            children:
+              - type: padding
+                padding: 4
+                child:
+                  - text: "Cell1 of Column"
+              - type: padding
+                padding: 4
+                child:
+                  - text: "Cell2 of Column"
+                    color: "#691010"
   - type: padding
     padding: 6
     child:
     - type: image
       src: "https://cdn.pixabay.com/photo/2016/03/09/15/27/cat-1246659_960_720.jpg"
-      width: 240
+      width: 280
       height: 320
       align: right
   - text: "What a lovely picture!"
+    font-size: 16
+    color: "#606062"
     type: text # you don't need to specify a type for text, but is not illegal :-)
     class: comment
+  - type: padding
+    padding: 7
+    child:
+    - text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore."
 """);
 
   runApp(
@@ -149,6 +173,9 @@ List<Widget> buildWidgets(YamlList nodes) {
       w.add(Row(children: children,
           mainAxisAlignment: align,
           crossAxisAlignment: xAlign));
+    } else if (type == 'container') {
+      w.add(Container(child: child, color: Color(color),
+          padding: EdgeInsets.all(padding.ceilToDouble())));
     }
   });
 
